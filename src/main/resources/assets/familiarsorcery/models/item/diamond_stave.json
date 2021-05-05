@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "familiarsorcery:item/diamond_stave"
+  }
+}
