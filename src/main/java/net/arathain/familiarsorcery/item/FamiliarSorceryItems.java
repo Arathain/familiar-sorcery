@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class FamiliarSorceryItems {
     private static final Map<Item, Identifier> ITEMS = new LinkedHashMap<>();
-    public static final Item DIAMOND_STAVE = create("diamond_stave", new DiamondStaveItem(ToolMaterials.DIAMOND,1, 0.5f, new Item.Settings().group(ItemGroup.TOOLS).rarity(Rarity.UNCOMMON).maxDamage(128).fireproof()));
+    public static final Item DIAMOND_STAVE = create("lapis_stave", new DiamondStaveItem(ToolMaterials.DIAMOND,0, -2f, new Item.Settings().group(ItemGroup.TOOLS).rarity(Rarity.UNCOMMON).maxDamage(128).fireproof()));
 
 
 
@@ -23,6 +23,7 @@ public class FamiliarSorceryItems {
         ITEMS.put(item, new Identifier(FamiliarSorcery.MODID, name));
         return item;
     }
+
     public static void init() {
         ITEMS.keySet().forEach(item -> Registry.register(Registry.ITEM, ITEMS.get(item), item));
     }

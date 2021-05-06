@@ -1,33 +1,29 @@
 package net.arathain.familiarsorcery.item;
 
+import net.arathain.familiarsorcery.UnfamiliarUtil;
 import net.arathain.familiarsorcery.enchantment.FamiliarSorceryEnchants;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluids;
+import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.item.*;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
-
-import java.util.Objects;
-import java.util.Set;
-
-import static net.arathain.familiarsorcery.enchantment.FamiliarSorceryEnchants.EXPLOSION;
 
 public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
     public DiamondStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
@@ -41,64 +37,53 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         if (!world.isClient && user instanceof PlayerEntity) {
-            Hand hand = user.getActiveHand();
-            int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand));
-            MinecraftClient client = MinecraftClient.getInstance();
-            HitResult hit = client.crosshairTarget;
+            int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
+            int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
+            int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
+            int smlvl = EnchantmentHelper.getLevel(Enchantments.SMITE, user.getStackInHand(user.getActiveHand()));
+            boolean fa = falvl > 0;
+            HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
+            EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
+            if (fa && boomlvl == 0) {
+                FireballEntity fireball = new FireballEntity(world, user, user.getRotationVector().x, user.getRotationVector().y, user.getRotationVector().z);
+                fireball.setOwner(user);
+                fireball.setPos(fireball.getX(), fireball.getY() + 1, fireball.getZ());
 
-            switch(Objects.requireNonNull(hit).getType()) {
-                case MISS:
-                    //nothing near enough
-                    break;
-                case BLOCK:
-                    BlockHitResult blockHit = (BlockHitResult) hit;
-                    BlockPos blockPos = blockHit.getBlockPos();
-                    BlockState blockState = client.world.getBlockState(blockPos);
-                    Block block = blockState.getBlock();
-                    if (this.getDefaultStack().getEnchantments().contains(EXPLOSION) && (boomlvl <= 8)) {
-
-                        world.createExplosion(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), boomlvl, Explosion.DestructionType.BREAK);
-                        stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(hand));
-
-                    }
-                    if (this.getDefaultStack().getEnchantments().contains(Enchantments.CHANNELING) && (boomlvl <= 8)) {
-                        LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                        lightningEntity.updatePosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                        world.spawnEntity(lightningEntity);
-                        stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(hand));
-
-                    }
-                    if (this.getDefaultStack().getEnchantments().contains(Enchantments.CHANNELING) && (boomlvl <= 8)) {
-                        LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                        lightningEntity.updatePosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                        world.spawnEntity(lightningEntity);
-                        stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(hand));
-
-                    }
-                    break;
-                case ENTITY:
-                    EntityHitResult entityHit = (EntityHitResult) hit;
-                    Entity entity = entityHit.getEntity();
-                    BlockPos blockPos1 = entityHit.getEntity().getBlockPos();
-                    if (this.getDefaultStack().getEnchantments().contains(EXPLOSION) && (boomlvl <= 8)) {
-
-                        world.createExplosion(null, blockPos1.getX(), blockPos1.getY(), blockPos1.getZ(), boomlvl, Explosion.DestructionType.BREAK);
-                        stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(hand));
-
-
-                    }
-                    if (this.getDefaultStack().getEnchantments().contains(Enchantments.CHANNELING) && (boomlvl <= 8)) {
-                        LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                        lightningEntity.updatePosition(blockPos1.getX(), blockPos1.getY(), blockPos1.getZ());
-                        world.spawnEntity(lightningEntity);
-                        stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(hand));
-
-                    }
-                    break;
+                world.playSound(null, user.getBlockPos(), SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.HOSTILE, 1, 1);
+                world.spawnEntity(fireball);
+                stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
             }
-
+            if (boomlvl > 0) {
+                if (hit != null) {
+                    world.createExplosion(user, DamageSource.explosion(user), null, hit.getPos().x, hit.getPos().y, hit.getPos().z, (boomlvl ), fa, Explosion.DestructionType.DESTROY);
+                }
+                if (hit == null) {
+                    world.createExplosion(user, DamageSource.explosion(user), null, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, (boomlvl ), fa, Explosion.DestructionType.DESTROY);
+                }
+            }
+            if (chalvl > 0) {
+                if (hit != null) {
+                    LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
+                    lightningEntity.updatePosition(hit.getPos().x, hit.getPos().y, hit.getPos().z);
+                    world.spawnEntity(lightningEntity);
+                }
+                if (hit == null) {
+                    LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
+                    lightningEntity.updatePosition(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
+                    world.spawnEntity(lightningEntity);
+                }
+            }
+            if (smlvl > 0) {
+                if (hit != null) {
+                    world.addParticle(ParticleTypes.FIREWORK, true, hit.getPos().x, hit.getPos().y, hit.getPos().z, 0, 10, 0);
+                    world.createExplosion(user, DamageSource.explosion(user), null, hit.getPos().x, hit.getPos().y, hit.getPos().z, 2, false, Explosion.DestructionType.NONE);
+                }
+                if (hit == null) {
+                    world.addParticle(ParticleTypes.FIREWORK, true, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, 0, 10, 0);
+                    world.createExplosion(user, DamageSource.explosion(user), null, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, 2, false, Explosion.DestructionType.NONE);
+                }
+            }
         }
-
         return stack;
     }
 
@@ -106,8 +91,11 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
     public UseAction getUseAction(ItemStack stack) {
         return UseAction.BOW;
     }
-
-
+    @Override
+    public int getMaxUseTime(ItemStack stack) {
+        return 48;
+    }
+    
     @Override
     public boolean isEffectiveOn(BlockState state) {
         return true;
