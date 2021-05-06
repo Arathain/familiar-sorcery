@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "familiarsorcery:block/amplifier_crystal"
+  }
+}

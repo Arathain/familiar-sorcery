@@ -1,4 +1,6 @@
 {
   "item.familiarsorcery.lapis_stave": "Lapis Stave",
+  "block.familiarsorcery.amplifier_crystal": "Amplifier Crystal",
+  "block.familiarsorcery.amplifier_crystal_block": "Amplifier Crystal Block",
   "enchantment.familiarsorcery.explosion": "Explosion"
 }

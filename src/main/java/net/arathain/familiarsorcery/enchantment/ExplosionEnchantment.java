@@ -19,6 +19,6 @@ public class ExplosionEnchantment extends Enchantment {
 
     @Override
     public int getMaxLevel() {
-        return 9;
+        return 5;
     }
 }

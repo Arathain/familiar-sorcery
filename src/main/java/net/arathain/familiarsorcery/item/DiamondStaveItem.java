@@ -13,19 +13,20 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.item.*;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
+import net.minecraft.util.*;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
+import static net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer.BEAM_TEXTURE;
+
 public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
+    public static final DyeColor BEAM_COLOR = DyeColor.RED;
+
     public DiamondStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
         super(toolMaterial, attackDamage, attackSpeed, settings);
     }
@@ -40,7 +41,6 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
             int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
-            int smlvl = EnchantmentHelper.getLevel(Enchantments.SMITE, user.getStackInHand(user.getActiveHand()));
             boolean fa = falvl > 0;
             HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
             EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
@@ -55,10 +55,11 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
             }
             if (boomlvl > 0) {
                 if (hit != null) {
-                    world.createExplosion(user, DamageSource.explosion(user), null, hit.getPos().x, hit.getPos().y, hit.getPos().z, (boomlvl ), fa, Explosion.DestructionType.DESTROY);
+                    world.createExplosion(user, DamageSource.explosion(user), null, hit.getPos().x, hit.getPos().y, hit.getPos().z, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
+
                 }
                 if (hit == null) {
-                    world.createExplosion(user, DamageSource.explosion(user), null, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, (boomlvl ), fa, Explosion.DestructionType.DESTROY);
+                    world.createExplosion(user, DamageSource.explosion(user), null, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
                 }
             }
             if (chalvl > 0) {
@@ -73,16 +74,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
                     world.spawnEntity(lightningEntity);
                 }
             }
-            if (smlvl > 0) {
-                if (hit != null) {
-                    world.addParticle(ParticleTypes.FIREWORK, true, hit.getPos().x, hit.getPos().y, hit.getPos().z, 0, 10, 0);
-                    world.createExplosion(user, DamageSource.explosion(user), null, hit.getPos().x, hit.getPos().y, hit.getPos().z, 2, false, Explosion.DestructionType.NONE);
-                }
-                if (hit == null) {
-                    world.addParticle(ParticleTypes.FIREWORK, true, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, 0, 10, 0);
-                    world.createExplosion(user, DamageSource.explosion(user), null, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, 2, false, Explosion.DestructionType.NONE);
-                }
-            }
+
         }
         return stack;
     }
