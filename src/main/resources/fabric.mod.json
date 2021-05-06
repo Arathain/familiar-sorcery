@@ -21,6 +21,9 @@
   "entrypoints": {
     "main": [
       "net.arathain.familiarsorcery.FamiliarSorcery"
+    ],
+    "client": [
+      "net.arathain.familiarsorcery.FamiliarSorceryClient"
     ]
   },
   "mixins": [
