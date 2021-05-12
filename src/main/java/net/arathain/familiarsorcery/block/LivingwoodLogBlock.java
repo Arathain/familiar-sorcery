@@ -31,6 +31,7 @@ public class LivingwoodLogBlock extends PillarBlock {
                 block = FamiliarSorceryBlocks.LIVINGWOOD_LOG;
             }
 
+
             if (block != null) {
                 switch(state.get(AXIS)) {
                     case X:
@@ -39,7 +40,7 @@ public class LivingwoodLogBlock extends PillarBlock {
                     case Z:
                         BlockState blockState2 = block.getDefaultState().with(PillarBlock.AXIS, Direction.Axis.Z);
                         world.setBlockState(blockPos, blockState2);
-                    default:
+                    case Y:
                         BlockState blockState3 = block.getDefaultState().with(PillarBlock.AXIS, Direction.Axis.Y);
                         world.setBlockState(blockPos, blockState3);
                 }
@@ -61,17 +62,36 @@ public class LivingwoodLogBlock extends PillarBlock {
                 } else {
                     return Direction.WEST;
                 }
-                case Z:
-                    if (random.nextBoolean()) {
-                        return Direction.NORTH;
-                    } else {
-                        return Direction.SOUTH;
-                    } default:
-                        if (random.nextBoolean()) {
-                            return Direction.UP;
-                        } else {
-                            return Direction.DOWN;
-                        }
+            case Z:
+                if (random.nextBoolean()) {
+                    return Direction.NORTH;
+                } else {
+                    return Direction.SOUTH;
                 }
+            case Y:
+                if (random.nextBoolean()) {
+                    return Direction.UP;
+                } else {
+                    return Direction.DOWN;
+                }
+        }
+        return null;
+
+    }
+    public BlockState rotate(BlockState state, BlockRotation rotation) {
+        switch(rotation) {
+            case COUNTERCLOCKWISE_90:
+            case CLOCKWISE_90:
+                switch((Direction.Axis)state.get(AXIS)) {
+                    case X:
+                        return (BlockState)state.with(AXIS, Direction.Axis.Z);
+                    case Z:
+                        return (BlockState)state.with(AXIS, Direction.Axis.X);
+                    default:
+                        return state;
+                }
+            default:
+                return state;
+        }
     }
 }

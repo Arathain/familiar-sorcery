@@ -23,8 +23,9 @@ public class FamiliarSorceryBlocks {
 
     public static Block AMPLIFIER_CRYSTAL_BLOCK = create("amplifier_crystal_block", new PillarBlock(FabricBlockSettings.copyOf(Blocks.EMERALD_BLOCK).breakByTool(FabricToolTags.PICKAXES).requiresTool().luminance(8)), ItemGroup.BUILDING_BLOCKS);
     public static Block AMPLIFIER_CRYSTAL = create("amplifier_crystal", new AmplifierCrystal(FabricBlockSettings.copyOf(Blocks.EMERALD_BLOCK).breakByTool(FabricToolTags.PICKAXES).requiresTool().nonOpaque().noCollision().luminance(8)), ItemGroup.BUILDING_BLOCKS);
-    public static Block LIVINGWOOD_LOG = create("livingwood_log", new LivingwoodLogBlock(FabricBlockSettings.copyOf(Blocks.WARPED_HYPHAE).breakByTool(FabricToolTags.AXES).ticksRandomly()), ItemGroup.BUILDING_BLOCKS);
-
+    public static Block LIVINGWOOD_LOG = create("livingwood_log", new PillarBlock(FabricBlockSettings.copyOf(Blocks.WARPED_HYPHAE).breakByTool(FabricToolTags.AXES).ticksRandomly()), ItemGroup.BUILDING_BLOCKS);
+    public static Block LIVINGWOOD = create("livingwood", new PillarBlock(FabricBlockSettings.copyOf(Blocks.WARPED_HYPHAE).breakByTool(FabricToolTags.AXES).ticksRandomly()), ItemGroup.BUILDING_BLOCKS);
+    public static Block LIVINGLEAF = create("livingleaf", new LeavesBlock(FabricBlockSettings.copyOf(Blocks.DARK_OAK_LEAVES).breakByTool(FabricToolTags.HOES)), ItemGroup.BUILDING_BLOCKS);
 
     public static void init() {
         for (Identifier id : ITEMS.keySet()) {

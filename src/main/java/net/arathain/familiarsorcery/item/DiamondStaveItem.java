@@ -2,6 +2,7 @@ package net.arathain.familiarsorcery.item;
 
 import net.arathain.familiarsorcery.UnfamiliarUtil;
 import net.arathain.familiarsorcery.enchantment.FamiliarSorceryEnchants;
+import net.arathain.familiarsorcery.entity.IcicleProjectile;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -41,6 +42,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
             int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
+            int iclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.ICING, user.getStackInHand(user.getActiveHand()));
             boolean fa = falvl > 0;
             HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
             EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
@@ -52,6 +54,14 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
                 world.playSound(null, user.getBlockPos(), SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.HOSTILE, 1, 1);
                 world.spawnEntity(fireball);
                 stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
+            }
+            if(iclvl>0 && boomlvl == 0) {
+                IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
+                icicleProjectile.setOwner(user);
+                icicleProjectile.setProperties(user, user.pitch, user.yaw, 0.0F, 4.0F, 1.0F);
+                icicleProjectile.updatePosition(user.getX(), user.getEyeY(), user.getZ());
+                icicleProjectile.addVelocity(user.getRandom().nextDouble() / 10, 0, user.getRandom().nextGaussian() / 10);
+                world.spawnEntity(icicleProjectile);
             }
             if (boomlvl > 0) {
                 if (hit != null) {
@@ -73,6 +83,29 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
                     lightningEntity.updatePosition(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
                     world.spawnEntity(lightningEntity);
                 }
+            }
+            if(iclvl>0 && boomlvl > 0) {
+                if (hit != null) {
+                    for (int i = 0; i < 250; i++) {
+                        IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
+                        icicleProjectile.setOwner(user);
+                        icicleProjectile.setPos(hit.getPos().x, hit.getPos().y, hit.getPos().z);
+                        icicleProjectile.updateTrackedPosition(hit.getPos().x, hit.getPos().y+0.5f, hit.getPos().z);
+                        icicleProjectile.setVelocity(user.getRandom().nextGaussian(), user.getRandom().nextGaussian(), user.getRandom().nextGaussian());
+                        world.spawnEntity(icicleProjectile);
+                    }
+                }
+                if (hit == null) {
+                    for (int i = 0; i < 250; i++) {
+                        IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
+                        icicleProjectile.setOwner(user);
+                        icicleProjectile.setPos(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
+                        icicleProjectile.updateTrackedPosition(hitResult.getPos().x, hitResult.getPos().y+0.5f, hitResult.getPos().z);
+                        icicleProjectile.setVelocity(user.getRandom().nextGaussian(), user.getRandom().nextGaussian(), user.getRandom().nextGaussian());
+                        world.spawnEntity(icicleProjectile);
+                    }
+                }
+
             }
 
         }

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "familiarsorcery:block/livingwood"
+    },
+    "axis=z": {
+      "model": "familiarsorcery:block/livingwood",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "familiarsorcery:block/livingwood",
+      "x": 90,
+      "y": 90
+    }
+  }
+}
