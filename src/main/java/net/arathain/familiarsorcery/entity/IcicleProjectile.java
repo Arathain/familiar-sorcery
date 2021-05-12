@@ -1,5 +1,6 @@
 package net.arathain.familiarsorcery.entity;
 
+import net.arathain.familiarsorcery.pain.UnfamiliarPackets;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -72,5 +73,10 @@ public class IcicleProjectile extends PersistentProjectileEntity {
     @Override
     public byte getPierceLevel() {
         return 1;
+    }
+
+    @Override
+    public Packet<?> createSpawnPacket() {
+        return UnfamiliarPackets.newSpawnPacket(this);
     }
 }

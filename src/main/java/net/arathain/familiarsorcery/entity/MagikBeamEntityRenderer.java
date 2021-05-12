@@ -21,7 +21,7 @@ public class MagikBeamEntityRenderer extends EntityRenderer<MagikBeamEntity> {
     public MagikBeamEntityRenderer(EntityRenderDispatcher dispatcher) {
         super(dispatcher);
 
-    }
+    } 
 
     @Override
     public Identifier getTexture(MagikBeamEntity entity) {

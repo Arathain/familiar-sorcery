@@ -2,7 +2,9 @@ package net.arathain.familiarsorcery.item;
 
 import net.arathain.familiarsorcery.UnfamiliarUtil;
 import net.arathain.familiarsorcery.enchantment.FamiliarSorceryEnchants;
+import net.arathain.familiarsorcery.entity.FamiliarEntities;
 import net.arathain.familiarsorcery.entity.IcicleProjectile;
+import net.arathain.familiarsorcery.entity.MagikBeamEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -19,6 +21,8 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -27,14 +31,36 @@ import static net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer
 
 public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
     public static final DyeColor BEAM_COLOR = DyeColor.RED;
+    private boolean bees = true;
+    private Vec3d targetPos;
 
     public DiamondStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
         super(toolMaterial, attackDamage, attackSpeed, settings);
     }
 
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        if (bees && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
+            MagikBeamEntity beamEntity = new MagikBeamEntity(FamiliarEntities.BEAM, world);
+            HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
+            EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
+            if (hit !=null) {
+                targetPos = hit.getPos();
+                beamEntity.setPos(targetPos.x, targetPos.y, targetPos.z);
+                world.spawnEntity(beamEntity);
+                bees = false;
+            }
+            if (hit ==null) {
+                targetPos = hitResult.getPos();
+                beamEntity.setPos(targetPos.x, targetPos.y, targetPos.z);
+                world.spawnEntity(beamEntity);
+                bees = false;
+            }
+        }
         return ItemUsage.consumeHeldItem(world, user, hand);
     }
+
+
+
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
@@ -44,8 +70,6 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
             int iclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.ICING, user.getStackInHand(user.getActiveHand()));
             boolean fa = falvl > 0;
-            HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
-            EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
             if (fa && boomlvl == 0) {
                 FireballEntity fireball = new FireballEntity(world, user, user.getRotationVector().x, user.getRotationVector().y, user.getRotationVector().z);
                 fireball.setOwner(user);
@@ -63,52 +87,32 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
                 icicleProjectile.addVelocity(user.getRandom().nextDouble() / 10, 0, user.getRandom().nextGaussian() / 10);
                 world.spawnEntity(icicleProjectile);
             }
-            if (boomlvl > 0) {
-                if (hit != null) {
-                    world.createExplosion(user, DamageSource.explosion(user), null, hit.getPos().x, hit.getPos().y, hit.getPos().z, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
+            if (boomlvl > 0 && targetPos != null) {
+                    world.createExplosion(user, DamageSource.explosion(user), null, targetPos.x, targetPos.y, targetPos.z, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
 
-                }
-                if (hit == null) {
-                    world.createExplosion(user, DamageSource.explosion(user), null, hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
-                }
             }
-            if (chalvl > 0) {
-                if (hit != null) {
+            if (chalvl > 0  && targetPos != null) {
                     LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                    lightningEntity.updatePosition(hit.getPos().x, hit.getPos().y, hit.getPos().z);
+                    lightningEntity.updatePosition(targetPos.x, targetPos.y, targetPos.z);
                     world.spawnEntity(lightningEntity);
-                }
-                if (hit == null) {
-                    LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                    lightningEntity.updatePosition(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
-                    world.spawnEntity(lightningEntity);
-                }
+
             }
-            if(iclvl>0 && boomlvl > 0) {
-                if (hit != null) {
-                    for (int i = 0; i < 250; i++) {
+            if(iclvl>0 && boomlvl > 0  && targetPos != null) {
+
+                for (int i = 0; i < (iclvl * 80); i++) {
                         IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
                         icicleProjectile.setOwner(user);
-                        icicleProjectile.setPos(hit.getPos().x, hit.getPos().y, hit.getPos().z);
-                        icicleProjectile.updateTrackedPosition(hit.getPos().x, hit.getPos().y+0.5f, hit.getPos().z);
+                        icicleProjectile.setPos(targetPos.x, targetPos.y, targetPos.z);
+                        icicleProjectile.updateTrackedPosition(targetPos.x, targetPos.y+0.5f, targetPos.z);
                         icicleProjectile.setVelocity(user.getRandom().nextGaussian(), user.getRandom().nextGaussian(), user.getRandom().nextGaussian());
                         world.spawnEntity(icicleProjectile);
-                    }
-                }
-                if (hit == null) {
-                    for (int i = 0; i < 250; i++) {
-                        IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
-                        icicleProjectile.setOwner(user);
-                        icicleProjectile.setPos(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
-                        icicleProjectile.updateTrackedPosition(hitResult.getPos().x, hitResult.getPos().y+0.5f, hitResult.getPos().z);
-                        icicleProjectile.setVelocity(user.getRandom().nextGaussian(), user.getRandom().nextGaussian(), user.getRandom().nextGaussian());
-                        world.spawnEntity(icicleProjectile);
-                    }
                 }
 
             }
 
         }
+        targetPos = null;
+        bees = true;
         return stack;
     }
 

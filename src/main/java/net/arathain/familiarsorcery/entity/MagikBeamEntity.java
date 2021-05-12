@@ -1,6 +1,7 @@
 package net.arathain.familiarsorcery.entity;
 
 
+import net.arathain.familiarsorcery.pain.UnfamiliarPackets;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
@@ -31,11 +32,9 @@ public class MagikBeamEntity extends Entity {
 
     @Override
     public Packet<?> createSpawnPacket() {
-        return new EntitySpawnS2CPacket(this);
+        return UnfamiliarPackets.newSpawnPacket(this);
     }
-
-
     public World getWorld() {
-        return this.getWorld();
+        return this.world;
     }
 }
