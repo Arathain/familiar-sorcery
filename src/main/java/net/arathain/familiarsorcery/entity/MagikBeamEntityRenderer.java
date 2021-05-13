@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier;
 @Environment(EnvType.CLIENT)
 public class MagikBeamEntityRenderer extends EntityRenderer<MagikBeamEntity> {
     public static final Identifier BEAM_TEXTURE = new Identifier("textures/entity/beacon_beam.png");
-    public static final DyeColor BEAM_COLOR = DyeColor.RED;
 
     public MagikBeamEntityRenderer(EntityRenderDispatcher dispatcher) {
         super(dispatcher);
@@ -32,8 +31,8 @@ public class MagikBeamEntityRenderer extends EntityRenderer<MagikBeamEntity> {
     public void render(MagikBeamEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
         long time = entity.getWorld().getTime();
-        BeaconBlockEntityRenderer.renderLightBeam(matrices, vertexConsumers, BEAM_TEXTURE, tickDelta, 1.0f, time, 0, 256, BEAM_COLOR.getColorComponents(), 0.25F, 0.35F);
-        BeaconBlockEntityRenderer.renderLightBeam(matrices, vertexConsumers, BEAM_TEXTURE, tickDelta, 1.0f, time, 0, -256, BEAM_COLOR.getColorComponents(), 0.25F, 0.35F);
+        BeaconBlockEntityRenderer.renderLightBeam(matrices, vertexConsumers, BEAM_TEXTURE, tickDelta, 1.0f, time, 0, 256, MagikBeamEntity.getColor().getColorComponents(), 0.25F, 0.35F);
+        BeaconBlockEntityRenderer.renderLightBeam(matrices, vertexConsumers, BEAM_TEXTURE, tickDelta, 1.0f, time, 0, -256, MagikBeamEntity.getColor().getColorComponents(), 0.25F, 0.35F);
 
     }
 

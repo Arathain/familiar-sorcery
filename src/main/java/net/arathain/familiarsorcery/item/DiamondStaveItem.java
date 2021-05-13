@@ -30,9 +30,10 @@ import net.minecraft.world.explosion.Explosion;
 import static net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer.BEAM_TEXTURE;
 
 public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
-    public static final DyeColor BEAM_COLOR = DyeColor.RED;
+    public static final DyeColor BEAM_COLOR = DyeColor.BLUE;
     private boolean bees = true;
     private Vec3d targetPos;
+    private MagikBeamEntity beamEntity;
 
     public DiamondStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
         super(toolMaterial, attackDamage, attackSpeed, settings);
@@ -40,9 +41,11 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
 
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (bees && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
-            MagikBeamEntity beamEntity = new MagikBeamEntity(FamiliarEntities.BEAM, world);
+            beamEntity = new MagikBeamEntity(FamiliarEntities.BEAM, world);
             HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
             EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
+            beamEntity.setColor(BEAM_COLOR);
+            beamEntity.setOwner(user);
             if (hit !=null) {
                 targetPos = hit.getPos();
                 beamEntity.setPos(targetPos.x, targetPos.y, targetPos.z);
@@ -64,7 +67,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (!world.isClient && user instanceof PlayerEntity) {
+        if (!world.isClient && user instanceof PlayerEntity && targetPos != null) {
             int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
@@ -110,6 +113,10 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
 
             }
 
+
+        }
+        if (beamEntity != null) {
+            beamEntity.remove();
         }
         targetPos = null;
         bees = true;

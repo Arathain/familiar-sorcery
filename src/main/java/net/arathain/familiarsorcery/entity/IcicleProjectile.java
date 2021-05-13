@@ -72,7 +72,7 @@ public class IcicleProjectile extends PersistentProjectileEntity {
 
     @Override
     public byte getPierceLevel() {
-        return 1;
+        return 2;
     }
 
     @Override
