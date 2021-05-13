@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class FamiliarBiomeFeatures {
-
+    //TODO this still doesn't work
     public static void addLivingwoodTrees(GenerationSettings.Builder builder) {
         builder.feature(GenerationStep.Feature.VEGETAL_DECORATION, FamiliarConfiguredFeatures.LIVINGTREES);
     }

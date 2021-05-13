@@ -39,11 +39,12 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
         super(toolMaterial, attackDamage, attackSpeed, settings);
     }
 
+    //TODO this absolutely doesn't work
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (bees && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
             beamEntity = new MagikBeamEntity(FamiliarEntities.BEAM, world);
-            HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 50, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
-            EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 50, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
+            HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 60, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
+            EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 60, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
             beamEntity.setColor(BEAM_COLOR);
             beamEntity.setOwner(user);
             if (hit !=null) {
@@ -61,6 +62,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
         }
         return ItemUsage.consumeHeldItem(world, user, hand);
     }
+
 
 
 
@@ -83,11 +85,14 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
                 stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
             }
             if(iclvl>0 && boomlvl == 0) {
+                //TODO replicate multishot functionality
                 IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
                 icicleProjectile.setOwner(user);
                 icicleProjectile.setProperties(user, user.pitch, user.yaw, 0.0F, 4.0F, 1.0F);
                 icicleProjectile.updatePosition(user.getX(), user.getEyeY(), user.getZ());
                 icicleProjectile.addVelocity(user.getRandom().nextDouble() / 10, 0, user.getRandom().nextGaussian() / 10);
+                world.spawnEntity(icicleProjectile);
+                world.spawnEntity(icicleProjectile);
                 world.spawnEntity(icicleProjectile);
             }
             if (boomlvl > 0 && targetPos != null) {

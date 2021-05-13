@@ -17,6 +17,7 @@ import java.util.Map;
 
 public class FamiliarSorceryEnchants {
     public static final Map<Enchantment, Identifier> ENCHANTS = new LinkedHashMap<>();
+
     public static final Enchantment EXPLOSION = create("explosion", new ExplosionEnchantment());
     public static final Enchantment ICING = create("icing", new IcicleEnchantment());
 
