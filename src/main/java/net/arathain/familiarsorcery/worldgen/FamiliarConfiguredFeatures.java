@@ -28,17 +28,18 @@ public class FamiliarConfiguredFeatures {
                             new TwoLayersFeatureSize(6, 0, 6))
                     .ignoreVines()
                     .build()));
+    public static final ConfiguredFeature<TreeFeatureConfig, ?> LIVINGWOOD = register("livingtree", Feature.TREE.configure((new TreeFeatureConfig.Builder(new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LOG), new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LEAVES), new LargeOakFoliagePlacer(UniformIntDistribution.of(2), UniformIntDistribution.of(2), 2), new LargeOakTrunkPlacer(8, 11, 2), new TwoLayersFeatureSize(2, 0, 0)).ignoreVines().build())));
 
     public static final ConfiguredFeature<?, ?> LIVINGTREES = register(
             "trees_livingtree",
             Feature.RANDOM_SELECTOR.configure(
                     new RandomFeatureConfig(
-                            ImmutableList.of(LIVINGTREE.withChance(0.0F)),
-                            LIVINGTREE
+                            ImmutableList.of(LIVINGWOOD.withChance(0.0F)),
+                            LIVINGWOOD
                     )
             )
                     .decorate(ConfiguredFeatures.Decorators.SQUARE_HEIGHTMAP)
-                    .decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(20, 0.1F, 1)))
+                    .decorate(Decorator.COUNT_EXTRA.configure(new CountExtraDecoratorConfig(6, 0.1F, 1)))
     );
 
     private static <FC extends FeatureConfig> ConfiguredFeature<FC, ?> register(String id, ConfiguredFeature<FC, ?> configuredFeature) {

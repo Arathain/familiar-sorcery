@@ -107,7 +107,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
             }
             if(iclvl>0 && boomlvl > 0  && targetPos != null) {
 
-                for (int i = 0; i < (iclvl * 80); i++) {
+                for (int i = 0; i < (iclvl * 50); i++) {
                         IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
                         icicleProjectile.setOwner(user);
                         icicleProjectile.setPos(targetPos.x, targetPos.y, targetPos.z);
