@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "familiarsorcery:livingleaf"
+    "familiarsorcery:starshrub",
+    "familiarsorcery:dark_starshrub"
   ]
 }

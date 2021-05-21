@@ -22,13 +22,13 @@ public class FamiliarConfiguredFeatures {
             Feature.TREE.configure( new TreeFeatureConfig.Builder
                     (
                             new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LOG),
-                            new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LEAVES),
+                            new SimpleBlockStateProvider(BlockStates.STARSHRUB),
                             new LargeOakFoliagePlacer(UniformIntDistribution.of(2), UniformIntDistribution.of(4), 4),
                             new LargeOakTrunkPlacer(3, 11, 0),
                             new TwoLayersFeatureSize(6, 0, 6))
                     .ignoreVines()
                     .build()));
-    public static final ConfiguredFeature<TreeFeatureConfig, ?> LIVINGWOOD = register("livingtree", Feature.TREE.configure((new TreeFeatureConfig.Builder(new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LOG), new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LEAVES), new LargeOakFoliagePlacer(UniformIntDistribution.of(2), UniformIntDistribution.of(2), 2), new LargeOakTrunkPlacer(8, 11, 2), new TwoLayersFeatureSize(2, 0, 0)).ignoreVines().build())));
+    public static final ConfiguredFeature<TreeFeatureConfig, ?> LIVINGWOOD = register("livingtree", Feature.TREE.configure((new TreeFeatureConfig.Builder(new SimpleBlockStateProvider(BlockStates.LIVINGWOOD_LOG), new SimpleBlockStateProvider(BlockStates.STARSHRUB), new LargeOakFoliagePlacer(UniformIntDistribution.of(2), UniformIntDistribution.of(2), 2), new LargeOakTrunkPlacer(8, 11, 2), new TwoLayersFeatureSize(2, 0, 0)).ignoreVines().build())));
 
     public static final ConfiguredFeature<?, ?> LIVINGTREES = register(
             "trees_livingtree",
@@ -49,7 +49,7 @@ public class FamiliarConfiguredFeatures {
 
     private static class BlockStates {
         private static final BlockState LIVINGWOOD_LOG = FamiliarSorceryBlocks.LIVINGWOOD_LOG.getDefaultState();
-        private static final BlockState LIVINGWOOD_LEAVES = FamiliarSorceryBlocks.LIVINGLEAF.getDefaultState();
+        private static final BlockState STARSHRUB = FamiliarSorceryBlocks.STARSHRUB.getDefaultState();
     }
 
 }

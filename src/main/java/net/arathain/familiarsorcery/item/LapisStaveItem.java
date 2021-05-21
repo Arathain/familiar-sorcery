@@ -16,6 +16,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.item.*;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.*;
@@ -27,37 +28,58 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
-import static net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer.BEAM_TEXTURE;
+import java.util.Objects;
 
-public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
+
+public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
     public static final DyeColor BEAM_COLOR = DyeColor.BLUE;
-    private boolean bees = true;
-    private Vec3d targetPos;
     private MagikBeamEntity beamEntity;
 
-    public DiamondStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
+    public LapisStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
         super(toolMaterial, attackDamage, attackSpeed, settings);
     }
 
+    public static void setUsing(ItemStack stack, boolean using) {
+        assert stack.getTag() != null;
+        stack.getTag().putBoolean("using", using);
+    }
+    public static boolean getUsing(ItemStack stack) {
+        assert stack.getTag() != null;
+        return stack.getTag().getBoolean("using");
+    }
+    public static void setTargetPos(ItemStack stack, float x, float y, float z) {
+        assert stack.getTag() != null;
+        CompoundTag targetPos = new CompoundTag();
+        targetPos.putFloat("X", x);
+        targetPos.putFloat("Y", y);
+        targetPos.putFloat("Z", z);
+        stack.getTag().put("targetPos", targetPos);
+    }
+
+
     //TODO this absolutely doesn't work
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        if (bees && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
+        if (getUsing(user.getStackInHand(hand)) && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
+            if (beamEntity != null) {
+                beamEntity.remove();
+            }
             beamEntity = new MagikBeamEntity(FamiliarEntities.BEAM, world);
             HitResult hitResult = UnfamiliarUtil.hitscanBlock(world, user, 60, RaycastContext.FluidHandling.NONE, (target) -> !target.is(Blocks.AIR));
             EntityHitResult hit = UnfamiliarUtil.hitscanEntity(world, user, 60, (target) -> target instanceof LivingEntity && !target.isSpectator() && user.canSee(target));
             beamEntity.setColor(BEAM_COLOR);
             beamEntity.setOwner(user);
             if (hit !=null) {
-                targetPos = hit.getPos();
-                beamEntity.setPos(targetPos.x, targetPos.y, targetPos.z);
+
+                setTargetPos(user.getStackInHand(hand), (float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z);
+                beamEntity.setPos(hit.getPos().x, hit.getPos().y, hit.getPos().z);
                 world.spawnEntity(beamEntity);
-                bees = false;
+                setUsing(user.getStackInHand(hand), false);
             }
-            if (hit ==null) {
-                targetPos = hitResult.getPos();
-                beamEntity.setPos(targetPos.x, targetPos.y, targetPos.z);
+            if (hit == null) {
+                setTargetPos(user.getStackInHand(hand), (float)hitResult.getPos().x, (float)hitResult.getPos().y, (float)hitResult.getPos().z);
+                beamEntity.setPos(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
                 world.spawnEntity(beamEntity);
-                bees = false;
+                setUsing(user.getStackInHand(hand), false);
             }
         }
         return ItemUsage.consumeHeldItem(world, user, hand);
@@ -69,12 +91,18 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (!world.isClient && user instanceof PlayerEntity && targetPos != null) {
+        if (!world.isClient && user instanceof PlayerEntity) {
             int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
             int iclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.ICING, user.getStackInHand(user.getActiveHand()));
             boolean fa = falvl > 0;
+            assert stack.getTag() != null;
+            CompoundTag targetPos = (CompoundTag) stack.getTag().get("targetPos");
+            assert targetPos != null;
+            float targetX = targetPos.getFloat("X");
+            float targetY = targetPos.getFloat("Y");
+            float targetZ = targetPos.getFloat("Z");
             if (fa && boomlvl == 0) {
                 FireballEntity fireball = new FireballEntity(world, user, user.getRotationVector().x, user.getRotationVector().y, user.getRotationVector().z);
                 fireball.setOwner(user);
@@ -95,23 +123,23 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
                 world.spawnEntity(icicleProjectile);
                 world.spawnEntity(icicleProjectile);
             }
-            if (boomlvl > 0 && targetPos != null) {
-                    world.createExplosion(user, DamageSource.explosion(user), null, targetPos.x, targetPos.y, targetPos.z, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
+            if (boomlvl > 0) {
+                    world.createExplosion(user, DamageSource.explosion(user), null, targetX, targetY, targetZ, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
 
             }
-            if (chalvl > 0  && targetPos != null) {
+            if (chalvl > 0) {
                     LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                    lightningEntity.updatePosition(targetPos.x, targetPos.y, targetPos.z);
+                    lightningEntity.updatePosition(targetX, targetY, targetZ);
                     world.spawnEntity(lightningEntity);
 
             }
-            if(iclvl>0 && boomlvl > 0  && targetPos != null) {
+            if(iclvl > 0 && boomlvl > 0) {
 
                 for (int i = 0; i < (iclvl * 50); i++) {
                         IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
                         icicleProjectile.setOwner(user);
-                        icicleProjectile.setPos(targetPos.x, targetPos.y, targetPos.z);
-                        icicleProjectile.updateTrackedPosition(targetPos.x, targetPos.y+0.5f, targetPos.z);
+                        icicleProjectile.setPos(targetX, targetY, targetZ);
+                        icicleProjectile.updateTrackedPosition(targetX, targetY+0.5f, targetZ);
                         icicleProjectile.setVelocity(user.getRandom().nextGaussian(), user.getRandom().nextGaussian(), user.getRandom().nextGaussian());
                         world.spawnEntity(icicleProjectile);
                 }
@@ -123,8 +151,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
         if (beamEntity != null) {
             beamEntity.remove();
         }
-        targetPos = null;
-        bees = true;
+        setUsing(user.getStackInHand(user.getActiveHand()), true);
         return stack;
     }
 
@@ -134,7 +161,7 @@ public class DiamondStaveItem extends SwordItem implements AbstractStaveItem {
     }
     @Override
     public int getMaxUseTime(ItemStack stack) {
-        return 48;
+        return 128;
     }
     
     @Override

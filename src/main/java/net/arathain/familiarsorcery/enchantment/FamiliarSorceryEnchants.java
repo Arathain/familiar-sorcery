@@ -1,17 +1,10 @@
 package net.arathain.familiarsorcery.enchantment;
 
-import jdk.jfr.internal.Utils;
 import net.arathain.familiarsorcery.FamiliarSorcery;
-import net.arathain.familiarsorcery.item.DiamondStaveItem;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ToolMaterials;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
