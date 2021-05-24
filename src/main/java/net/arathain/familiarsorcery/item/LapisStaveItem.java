@@ -57,7 +57,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
     }
 
 
-    //TODO this absolutely doesn't work
+
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (getUsing(user.getStackInHand(hand)) && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
             if (beamEntity != null) {
@@ -153,6 +153,15 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
         }
         setUsing(user.getStackInHand(user.getActiveHand()), true);
         return stack;
+    }
+
+    @Override
+    public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        super.onStoppedUsing(stack, world, user, remainingUseTicks);
+        if (beamEntity != null) {
+            beamEntity.remove();
+        }
+        setUsing(user.getStackInHand(user.getActiveHand()), true);
     }
 
     @Override
