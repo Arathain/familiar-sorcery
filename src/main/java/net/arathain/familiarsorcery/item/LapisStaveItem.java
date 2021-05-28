@@ -5,6 +5,7 @@ import net.arathain.familiarsorcery.enchantment.FamiliarSorceryEnchants;
 import net.arathain.familiarsorcery.entity.FamiliarEntities;
 import net.arathain.familiarsorcery.entity.IcicleProjectile;
 import net.arathain.familiarsorcery.entity.MagikBeamEntity;
+import net.arathain.familiarsorcery.entity.PartOfYou;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -22,8 +23,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -86,9 +85,6 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
     }
 
 
-
-
-
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         if (!world.isClient && user instanceof PlayerEntity) {
@@ -96,13 +92,13 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
             int iclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.ICING, user.getStackInHand(user.getActiveHand()));
+            int fraclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.FRACTURE, user.getStackInHand(user.getActiveHand()));
             boolean fa = falvl > 0;
             assert stack.getTag() != null;
             CompoundTag targetPos = (CompoundTag) stack.getTag().get("targetPos");
             assert targetPos != null;
-            float targetX = targetPos.getFloat("X");
-            float targetY = targetPos.getFloat("Y");
-            float targetZ = targetPos.getFloat("Z");
+
+
             if (fa && boomlvl == 0) {
                 FireballEntity fireball = new FireballEntity(world, user, user.getRotationVector().x, user.getRotationVector().y, user.getRotationVector().z);
                 fireball.setOwner(user);
@@ -112,22 +108,30 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
                 world.spawnEntity(fireball);
                 stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
             }
-            if(iclvl>0 && boomlvl == 0) {
+            if(iclvl>0 && !(boomlvl > 0)) {
                 //TODO replicate multishot functionality
-                IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
-                icicleProjectile.setOwner(user);
-                icicleProjectile.setProperties(user, user.pitch, user.yaw, 0.0F, 4.0F, 1.0F);
-                icicleProjectile.updatePosition(user.getX(), user.getEyeY(), user.getZ());
-                icicleProjectile.addVelocity(user.getRandom().nextDouble() / 10, 0, user.getRandom().nextGaussian() / 10);
-                world.spawnEntity(icicleProjectile);
-                world.spawnEntity(icicleProjectile);
-                world.spawnEntity(icicleProjectile);
+                for (int i = 0; i < (iclvl * 8); i++) {
+                    IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
+                    icicleProjectile.setOwner(user);
+                    icicleProjectile.setProperties(user, user.pitch, user.yaw, 0.0F, 4.0F, 1.0F);
+                    icicleProjectile.updatePosition(user.getX(), user.getEyeY(), user.getZ());
+                    icicleProjectile.addVelocity(user.getRandom().nextDouble() / 10, 0, user.getRandom().nextGaussian() / 10);
+                    world.spawnEntity(icicleProjectile);
+                }
             }
             if (boomlvl > 0) {
+
+                float targetX = targetPos.getFloat("X");
+                float targetY = targetPos.getFloat("Y");
+                float targetZ = targetPos.getFloat("Z");
                     world.createExplosion(user, DamageSource.explosion(user), null, targetX, targetY, targetZ, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
 
             }
             if (chalvl > 0) {
+
+                float targetX = targetPos.getFloat("X");
+                float targetY = targetPos.getFloat("Y");
+                float targetZ = targetPos.getFloat("Z");
                     LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
                     lightningEntity.updatePosition(targetX, targetY, targetZ);
                     world.spawnEntity(lightningEntity);
@@ -135,6 +139,9 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
             }
             if(iclvl > 0 && boomlvl > 0) {
 
+                float targetX = targetPos.getFloat("X");
+                float targetY = targetPos.getFloat("Y");
+                float targetZ = targetPos.getFloat("Z");
                 for (int i = 0; i < (iclvl * 50); i++) {
                         IcicleProjectile icicleProjectile = new IcicleProjectile(world, user);
                         icicleProjectile.setOwner(user);
@@ -145,6 +152,16 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
                 }
 
             }
+            if(fraclvl > 0) {
+
+                
+                PartOfYou partOfYou = new PartOfYou(FamiliarEntities.PART_OF_YOU, world);
+                partOfYou.setPos(user.getX(), user.getY()+1, user.getZ());
+
+                world.spawnEntity(partOfYou);
+
+            }
+
 
 
         }
@@ -170,7 +187,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
     }
     @Override
     public int getMaxUseTime(ItemStack stack) {
-        return 128;
+        return 96;
     }
     
     @Override

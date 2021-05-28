@@ -3,6 +3,7 @@ package net.arathain.familiarsorcery;
 import net.arathain.familiarsorcery.entity.FamiliarEntities;
 import net.arathain.familiarsorcery.entity.IcicleRenderer;
 import net.arathain.familiarsorcery.entity.MagikBeamEntityRenderer;
+import net.arathain.familiarsorcery.entity.PartOfYouRenderer;
 import net.arathain.familiarsorcery.pain.EntityDispatcher;
 import net.arathain.familiarsorcery.pain.UnfamiliarPackets;
 import net.fabricmc.api.ClientModInitializer;
@@ -20,6 +21,6 @@ public class FamiliarSorceryClient implements ClientModInitializer {
 
         EntityRendererRegistry.INSTANCE.register(FamiliarEntities.BEAM, (manager, context) -> new MagikBeamEntityRenderer(manager));
         EntityRendererRegistry.INSTANCE.register(FamiliarEntities.ICICLE, (manager, context) -> new IcicleRenderer(manager));
-
+        EntityRendererRegistry.INSTANCE.register(FamiliarEntities.PART_OF_YOU, (manager, context) -> new PartOfYouRenderer(manager));
     }
 }
