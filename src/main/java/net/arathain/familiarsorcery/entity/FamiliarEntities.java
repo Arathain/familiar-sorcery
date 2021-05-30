@@ -16,9 +16,9 @@ public class FamiliarEntities {
 
     public static void init() {
         ICICLE = register("icicle", FabricEntityTypeBuilder.<IcicleProjectile>create(SpawnGroup.MISC, IcicleProjectile::new).dimensions(EntityDimensions.changing(0.5f, 0.5f)).trackRangeBlocks(4).trackedUpdateRate(20).build());
-        BEAM = register("beam", FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, MagikBeamEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.75f)).build());
-        PART_OF_YOU = createEntity("partofyou", PartOfYou.createAttributes(), FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, PartOfYou::new).dimensions(EntityDimensions.fixed(0.4f, 0.8f)).build());
-        Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "partofyou"), PART_OF_YOU);
+        BEAM = register("beam", FabricEntityTypeBuilder.create(SpawnGroup.MISC, MagikBeamEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.75f)).build());
+        PART_OF_YOU = createEntity("partofyou", PartOfYou.createAttributes(), FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, PartOfYou::new).dimensions(EntityDimensions.fixed(0.6f, 0.6f)).build());
+
     }
 
     private static <T extends Entity> EntityType<T> register(String s, EntityType<T> entityType) {
@@ -27,10 +27,6 @@ public class FamiliarEntities {
     private static <T extends LivingEntity> EntityType<T> createEntity(String name, DefaultAttributeContainer.Builder attributes, EntityType<T> type) {
         FabricDefaultAttributeRegistry.register(type, attributes);
 
-        return type;
-    }
-    private static <T extends Entity> EntityType<T> createEntity(String name, EntityType<T> type) {
-
-        return type;
+        return Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, name), type);
     }
 }

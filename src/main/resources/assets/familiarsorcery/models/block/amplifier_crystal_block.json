@@ -1,7 +1,0 @@
-{
-  "parent": "block/cube_column",
-  "textures": {
-    "end": "familiarsorcery:block/amplifier_crystal_block_top",
-    "side": "familiarsorcery:block/amplifier_crystal_block"
-  }
-}

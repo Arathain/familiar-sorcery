@@ -1,7 +1,0 @@
-{
-  "parent": "block/cube_column",
-  "textures": {
-    "end": "familiarsorcery:block/livingwood_log",
-    "side": "familiarsorcery:block/livingwood_log"
-  }
-}

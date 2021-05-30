@@ -13,7 +13,10 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.item.*;
@@ -24,6 +27,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.RaycastContext;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
@@ -93,6 +97,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
             int iclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.ICING, user.getStackInHand(user.getActiveHand()));
             int fraclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.FRACTURE, user.getStackInHand(user.getActiveHand()));
+            int metlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.METALLICISE, user.getStackInHand(user.getActiveHand()));
             boolean fa = falvl > 0;
             assert stack.getTag() != null;
             CompoundTag targetPos = (CompoundTag) stack.getTag().get("targetPos");
@@ -106,7 +111,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
 
                 world.playSound(null, user.getBlockPos(), SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.HOSTILE, 1, 1);
                 world.spawnEntity(fireball);
-                stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
+
             }
             if(iclvl>0 && !(boomlvl > 0)) {
                 //TODO replicate multishot functionality
@@ -156,14 +161,18 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
 
                 
                 PartOfYou partOfYou = new PartOfYou(FamiliarEntities.PART_OF_YOU, world);
-                partOfYou.setPos(user.getX(), user.getY()+1, user.getZ());
-
+                partOfYou.initialize((ServerWorldAccess) world, world.getLocalDifficulty(user.getBlockPos()), SpawnReason.EVENT, null, null);
+                partOfYou.updatePositionAndAngles(user.getX(), user.getY()+1, user.getZ(), world.random.nextFloat() * 360, 0);
+                partOfYou.createSpawnPacket();
+                partOfYou.setOwner((PlayerEntity) user);
+                user.damage(DamageSource.MAGIC, user.getHealth() - 2*fraclvl);
                 world.spawnEntity(partOfYou);
 
             }
-
-
-
+            if(metlvl > 0) {
+             user.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 96*metlvl, 1));
+            }
+            stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
         }
         if (beamEntity != null) {
             beamEntity.remove();

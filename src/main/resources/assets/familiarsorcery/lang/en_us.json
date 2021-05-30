@@ -7,5 +7,7 @@
   "block.familiarsorcery.amplifier_crystal": "Amplifier Crystal",
   "block.familiarsorcery.amplifier_crystal_block": "Amplifier Crystal Block",
   "enchantment.familiarsorcery.explosion": "Explosion",
-  "enchantment.familiarsorcery.icing": "Ice Blast"
+  "enchantment.familiarsorcery.icing": "Ice Blast",
+  "enchantment.familiarsorcery.fracture": "Fracture",
+  "enchantment.familiarsorcery.metallicise": "Metallicise"
 }
