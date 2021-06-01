@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 
 public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
@@ -62,7 +63,9 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
 
 
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        if (getUsing(user.getStackInHand(hand)) && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(hand)) > 0)) {
+        ItemStack stack = user.getStackInHand(hand);
+
+        if (getUsing(stack) && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, stack) > 0) && (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI || user.getMainHandStack().getItem() == Items.LAPIS_LAZULI)) {
             if (beamEntity != null) {
                 beamEntity.remove();
             }
@@ -73,16 +76,16 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
             beamEntity.setOwner(user);
             if (hit !=null) {
 
-                setTargetPos(user.getStackInHand(hand), (float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z);
+                setTargetPos(stack, (float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z);
                 beamEntity.setPos(hit.getPos().x, hit.getPos().y, hit.getPos().z);
                 world.spawnEntity(beamEntity);
-                setUsing(user.getStackInHand(hand), false);
+                setUsing(stack, false);
             }
             if (hit == null) {
-                setTargetPos(user.getStackInHand(hand), (float)hitResult.getPos().x, (float)hitResult.getPos().y, (float)hitResult.getPos().z);
+                setTargetPos(stack, (float)hitResult.getPos().x, (float)hitResult.getPos().y, (float)hitResult.getPos().z);
                 beamEntity.setPos(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
                 world.spawnEntity(beamEntity);
-                setUsing(user.getStackInHand(hand), false);
+                setUsing(stack, false);
             }
         }
         return ItemUsage.consumeHeldItem(world, user, hand);
@@ -91,7 +94,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (!world.isClient && user instanceof PlayerEntity) {
+        if (!world.isClient && user instanceof PlayerEntity && (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI || user.getMainHandStack().getItem() == Items.LAPIS_LAZULI)) {
             int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
             int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
@@ -173,6 +176,12 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
              user.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 96*metlvl, 1));
             }
             stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
+            if (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI) {
+                user.getOffHandStack().decrement(1);
+            }
+            if (user.getMainHandStack().getItem() == Items.LAPIS_LAZULI) {
+                user.getMainHandStack().decrement(1);
+            }
         }
         if (beamEntity != null) {
             beamEntity.remove();
