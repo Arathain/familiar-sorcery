@@ -176,6 +176,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
              user.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 96*metlvl, 1));
             }
             stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
+
             if (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI) {
                 user.getOffHandStack().decrement(1);
             }
