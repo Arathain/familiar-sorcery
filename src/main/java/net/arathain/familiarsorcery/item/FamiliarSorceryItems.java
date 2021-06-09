@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class FamiliarSorceryItems {
     private static final Map<Item, Identifier> ITEMS = new LinkedHashMap<>();
-    public static final Item LAPIS_STAVE = create("lapis_stave", new LapisStaveItem(ToolMaterials.DIAMOND,-1, -1f, new Item.Settings().group(ItemGroup.TOOLS).rarity(Rarity.UNCOMMON).maxDamage(128).fireproof()));
+    public static final Item LAPIS_STAVE = create("lapis_stave", new LapisStaveItem(ToolMaterials.GOLD,-1, -1f, new Item.Settings().group(ItemGroup.COMBAT).rarity(Rarity.UNCOMMON).maxDamage(128)));
 
 
     private static <T extends Item> T create(String name, T item) {

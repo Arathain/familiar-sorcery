@@ -1,13 +1,8 @@
 {
   "item.familiarsorcery.lapis_stave": "Lapis Stave",
-  "item.familiarsorcery.livingwood_helmet": "Livingwood Helm",
-  "item.familiarsorcery.livingwood_chestplate": "Livingwood Chestplate",
-  "item.familiarsorcery.livingwood_leggings": "Livingwood Leggings",
-  "item.familiarsorcery.livingwood_boots": "Livingwood Boots",
-  "block.familiarsorcery.amplifier_crystal": "Amplifier Crystal",
-  "block.familiarsorcery.amplifier_crystal_block": "Amplifier Crystal Block",
   "enchantment.familiarsorcery.explosion": "Explosion",
-  "enchantment.familiarsorcery.icing": "Ice Blast",
+  "enchantment.familiarsorcery.icing": "Defervescence",
   "enchantment.familiarsorcery.fracture": "Fracture",
-  "enchantment.familiarsorcery.metallicise": "Metallicise"
+  "enchantment.familiarsorcery.metallicise": "Fortification",
+  "enchantment.familiarsorcery.call_lightning": "Electrification"
 }

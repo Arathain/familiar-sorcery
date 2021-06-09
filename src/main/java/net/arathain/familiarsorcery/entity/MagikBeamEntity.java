@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.world.World;
@@ -50,6 +51,18 @@ public class MagikBeamEntity extends Entity {
             tag.putUuid("Owner", this.ownerUuid);
         }
 
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        for (int i = 0; i < (96); i++) {
+            world.addParticle(ParticleTypes.END_ROD,
+                    getX(),
+                    getY(),
+                    getZ(),
+                    random.nextGaussian() / 3, random.nextGaussian() / 8, random.nextGaussian() / 3);
+        }
     }
 
     protected void readCustomDataFromTag(CompoundTag tag) {

@@ -15,7 +15,7 @@ public class FamiliarEntities {
     public static EntityType<PartOfYou> PART_OF_YOU;
 
     public static void init() {
-        ICICLE = register("icicle", FabricEntityTypeBuilder.<IcicleProjectile>create(SpawnGroup.MISC, IcicleProjectile::new).dimensions(EntityDimensions.changing(0.5f, 0.5f)).trackRangeBlocks(4).trackedUpdateRate(20).build());
+        ICICLE = register("icicle", FabricEntityTypeBuilder.<IcicleProjectile>create(SpawnGroup.MISC, IcicleProjectile::new).dimensions(EntityDimensions.changing(0.5f, 0.5f)).trackRangeBlocks(4).trackedUpdateRate(20).fireImmune().build());
         BEAM = register("beam", FabricEntityTypeBuilder.create(SpawnGroup.MISC, MagikBeamEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.75f)).build());
         PART_OF_YOU = createEntity("partofyou", PartOfYou.createAttributes(), FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, PartOfYou::new).dimensions(EntityDimensions.fixed(0.6f, 0.6f)).build());
 

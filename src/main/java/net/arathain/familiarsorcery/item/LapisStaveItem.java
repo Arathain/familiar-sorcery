@@ -31,12 +31,10 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
-import java.util.Objects;
-import java.util.function.Predicate;
 
 
 public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
-    public static final DyeColor BEAM_COLOR = DyeColor.BLUE;
+    public static final DyeColor BEAM_COLOR = DyeColor.WHITE;
     private MagikBeamEntity beamEntity;
 
     public LapisStaveItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
@@ -64,8 +62,8 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
 
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
-
-        if (getUsing(stack) && (EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, stack) > 0) && (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI || user.getMainHandStack().getItem() == Items.LAPIS_LAZULI)) {
+        boolean hitscanRequired = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, stack) > 0 || EnchantmentHelper.getLevel(FamiliarSorceryEnchants.CALL_LIGHTNING, stack) > 0;
+        if (getUsing(stack) && hitscanRequired && (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI || user.getMainHandStack().getItem() == Items.LAPIS_LAZULI)) {
             if (beamEntity != null) {
                 beamEntity.remove();
             }
@@ -97,7 +95,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
         if (!world.isClient && user instanceof PlayerEntity && (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI || user.getMainHandStack().getItem() == Items.LAPIS_LAZULI)) {
             int falvl = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, user.getStackInHand(user.getActiveHand()));
             int boomlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.EXPLOSION, user.getStackInHand(user.getActiveHand()));
-            int chalvl = EnchantmentHelper.getLevel(Enchantments.CHANNELING, user.getStackInHand(user.getActiveHand()));
+            int chalvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.CALL_LIGHTNING, user.getStackInHand(user.getActiveHand()));
             int iclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.ICING, user.getStackInHand(user.getActiveHand()));
             int fraclvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.FRACTURE, user.getStackInHand(user.getActiveHand()));
             int metlvl = EnchantmentHelper.getLevel(FamiliarSorceryEnchants.METALLICISE, user.getStackInHand(user.getActiveHand()));
@@ -132,7 +130,7 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
                 float targetX = targetPos.getFloat("X");
                 float targetY = targetPos.getFloat("Y");
                 float targetZ = targetPos.getFloat("Z");
-                    world.createExplosion(user, DamageSource.explosion(user), null, targetX, targetY, targetZ, (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
+                    world.createExplosion(user, DamageSource.explosion(user), null, targetX, targetY, targetZ, 2 + (boomlvl * 2), fa, Explosion.DestructionType.DESTROY);
 
             }
             if (chalvl > 0) {
@@ -140,9 +138,11 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
                 float targetX = targetPos.getFloat("X");
                 float targetY = targetPos.getFloat("Y");
                 float targetZ = targetPos.getFloat("Z");
-                    LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-                    lightningEntity.updatePosition(targetX, targetY, targetZ);
-                    world.spawnEntity(lightningEntity);
+                for (int i = 0; i < (chalvl * 2); i++) {
+                        LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
+                        lightningEntity.updatePosition(targetX + user.getRandom().nextGaussian(), targetY, targetZ + user.getRandom().nextGaussian());
+                        world.spawnEntity(lightningEntity);
+                }
 
             }
             if(iclvl > 0 && boomlvl > 0) {
@@ -177,12 +177,13 @@ public class LapisStaveItem extends SwordItem implements AbstractStaveItem {
                 user.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 120*metlvl, 1+metlvl));
             }
             stack.damage(1, user, stackUser -> stackUser.sendToolBreakStatus(user.getActiveHand()));
-
-            if (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI) {
-                user.getOffHandStack().decrement(1);
-            }
-            if (user.getMainHandStack().getItem() == Items.LAPIS_LAZULI) {
-                user.getMainHandStack().decrement(1);
+            if (!((PlayerEntity) user).isCreative()) {
+                if (user.getOffHandStack().getItem() == Items.LAPIS_LAZULI) {
+                    user.getOffHandStack().decrement(1);
+                }
+                if (user.getMainHandStack().getItem() == Items.LAPIS_LAZULI) {
+                    user.getMainHandStack().decrement(1);
+                }
             }
         }
         if (beamEntity != null) {
